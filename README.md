@@ -8,11 +8,11 @@
 ## Overview
 
 ## Getting Started
-* Install express package
-* Creat  app
-* Creat port 
-* add functions
-*  Run server
+* Install express package.
+* Creat  app.
+* Creat port. 
+* add functions.
+*  Run server.
 
 ## Project Features
 * collect movies  data and display it to the user
