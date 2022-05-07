@@ -2,7 +2,7 @@
 
 
 // Declrations
-const url = "postgres://h4mz411y:0000@localhost:5432/movie"
+const url = "postgres://h4mz411y:0000@localhost:5432/movies"
 const express = require ('express');
 const movieData = require ("./MovieData/data.json");
 const cors = require("cors");
