@@ -2,15 +2,24 @@
 
 
 // Declrations
-
+const url = "postgres://h4mz411y:0000@localhost:5432/movie"
 const express = require ('express');
 const movieData = require ("./MovieData/data.json");
 const cors = require("cors");
 const axios = require('axios').default;
-require('dotenv').config()
+require('dotenv').config();
+const bodyParser = require('body-parser');
+
+const { Client } = require('pg')
+const client = new Client(url)
+
+
+// app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 const app = express();
-const port = 3000 ; 
+const port = 3000  
 app.listen  (port, handlLestin)
 
 app.get ("/" , handleHomePage)
@@ -19,6 +28,8 @@ app.get ("/trending" , handletrending)
 app.get ("/search" , handleSearch)
 app.get ("/Authentication", hanleAuthentication)
 app.get ("/Languages",handleLanguages)
+app.post("/addMovie", handleAdd);
+app.get("/getMovies", handleGet);
 
 app.get("/error", (req, res) => {
   res.status(500).send("Sorry, something went wrong");
@@ -33,6 +44,7 @@ app.get("*", (req, res) => {
 
 
 // functions
+
 
 function handlLestin () {
     console.log(`Example app listening on port ${port}`);
@@ -112,6 +124,32 @@ res.json(resultLanguage.data);
 
 }
 
+function handleAdd(req, res) {
+
+
+  const { title,  comment } = req.body;
+
+  let sql = 'INSERT INTO recipe( title,  comment) VALUES($1, $2) RETURNING *;' // sql query
+  let values = [ title,  comment];
+  client.query(sql, values).then((result) => {
+      console.log(result.rows);
+      return res.status(201).json(result.rows[0]);
+  }).catch()
+
+
+}
+
+function handleGet(req, res) {
+
+  let sql = 'SELECT * from movies;'
+  client.query(sql).then((result) => {
+      console.log(result);
+      res.json(result.rows);
+  }).catch((err) => {
+      handleError(err, req, res);
+  });
+}
+
 
   // constructors
 
@@ -140,3 +178,12 @@ this.overview=overview;
 
 
 }
+
+
+// after connection to db, start the server
+client.connect().then(() => {
+
+  app.listen(port, () => {
+      console.log(`Server is listening ${port}`);
+  });
+})
