@@ -178,12 +178,12 @@ this.overview=overview;
 
 
 }
-
-
-// after connection to db, start the server
 client.connect().then(() => {
 
   app.listen(port, () => {
       console.log(`Server is listening ${port}`);
   });
 })
+
+
+
