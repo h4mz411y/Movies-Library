@@ -2,26 +2,36 @@
 
 
 // Declrations
-const url = "postgres://h4mz411y:0000@localhost:5432/movies"
+const PORT = 3000; 
 const express = require ('express');
 const movieData = require ("./MovieData/data.json");
 const cors = require("cors");
+const bodyParser = require('body-parser');
 const axios = require('axios').default;
 require('dotenv').config();
-const bodyParser = require('body-parser');
+const app = express();
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 const { Client } = require('pg')
-const client = new Client(url)
+const client = new Client({
+  host: "localhost",
+  user: "fakhreddin",
+  port : 5432,
+  password: "0000",
+  database: "movies"
 
 
-// app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+})
 
-const app = express();
-const port = 3000  
-app.listen  (port, handlLestin)
 
+
+
+
+ 
+app.listen  (PORT, handlLestin)
+// Routs
 app.get ("/" , handleHomePage)
 app.get("/favorite" , handleFavoritePage)
 app.get ("/trending" , handletrending)
@@ -47,7 +57,7 @@ app.get("*", (req, res) => {
 
 
 function handlLestin () {
-    console.log(`Example app listening on port ${port}`);
+    console.log(`Example app listening on port ${PORT}`);
 }
 
 
@@ -129,7 +139,7 @@ function handleAdd(req, res) {
 
   const { title,  comment } = req.body;
 
-  let sql = 'INSERT INTO recipe( title,  comment) VALUES($1, $2) RETURNING *;' // sql query
+  let sql = 'INSERT INTO movies( title,  comment) VALUES($1, $2) RETURNING *;' // sql query
   let values = [ title,  comment];
   client.query(sql, values).then((result) => {
       console.log(result.rows);
@@ -149,6 +159,12 @@ function handleGet(req, res) {
       handleError(err, req, res);
   });
 }
+
+
+
+
+// after connection to db, start the server
+
 
 
   // constructors
@@ -178,12 +194,7 @@ this.overview=overview;
 
 
 }
-client.connect().then(() => {
 
-  app.listen(port, () => {
-      console.log(`Server is listening ${port}`);
-  });
-})
 
 
 
