@@ -39,6 +39,9 @@ app.get ("/Authentication", hanleAuthentication)
 app.get ("/Languages",handleLanguages)
 app.post("/addMovie", handleAdd);
 app.get("/getMovies", handleGet);
+app.put("/update/:movieId",handleUpdate);
+app.delete("/deleteMovie", handleDelete);
+
 
 app.get("/error", (req, res) => {
   res.status(500).send("Sorry, something went wrong");
@@ -49,13 +52,8 @@ app.get("*", (req, res) => {
 });
 
 
-
-
-
 // functions
 
-
-//start fucntion
 async function startServer() {
   try {
     const connectDB = await client.connect();
@@ -173,10 +171,37 @@ function handleGet(req, res) {
   });
 }
 
+function handleUpdate (req,res) {
+  const { movieId } = req.params;
+    const { id, original_title, release_date, poster_path, overview } = req.body;
+
+    let sql = `UPDATE movies SET id = $1, original_title = $2, release_date = $3, poster_path = $4, overview = $5;`
+    let values = [id, original_title, release_date, poster_path, overview];
+
+    client.query(sql, values).then(result => {
+      console.log(result);
+      res.send("Updated successfully!");
+      res.json(result.rows[0]);
+  }
+
+  ).catch();
+
+}
+
+function handleDelete(req, res) {
+  const { movieId } = req.query
+  console.log(movieId);
+  let sql = 'DELETE FROM movies WHERE id = $1;'
+  let value = [movieId];
+  client.query(sql, value).then(result => {
+      console.log(result);
+      res.status(204).send("Deleted successfully!");
+  }
+  ).catch()
+}
 
 
 startServer();
-
 
 
   // constructors
