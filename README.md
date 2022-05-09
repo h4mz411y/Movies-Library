@@ -17,4 +17,6 @@
 ## Project Features
 * collect movies  data and display it to the user
 * Add to DataBase
-* Get information from DataBase
+* Get Information from DataBase
+* Update Information inside the DataBase
+* Delet Information from the DataBase
