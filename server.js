@@ -2,7 +2,7 @@
 
 
 // Declrations
-const PORT = 3000; 
+const PORT = 3004; 
 const express = require ('express');
 const movieData = require ("./MovieData/data.json");
 const cors = require("cors");
@@ -30,7 +30,6 @@ const client = new Client({
 
 
  
-app.listen  (PORT, handlLestin)
 // Routs
 app.get ("/" , handleHomePage)
 app.get("/favorite" , handleFavoritePage)
@@ -56,8 +55,16 @@ app.get("*", (req, res) => {
 // functions
 
 
-function handlLestin () {
-    console.log(`Example app listening on port ${PORT}`);
+//start fucntion
+async function startServer() {
+  try {
+    const connectDB = await client.connect();
+    const listenNow = await app.listen(PORT, () => {
+      console.log(`Example app listening on PORT ${PORT}`);
+    });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 
@@ -137,14 +144,20 @@ res.json(resultLanguage.data);
 function handleAdd(req, res) {
 
 
-  const { title,  comment } = req.body;
+  const { id, original_title, release_date, poster_path, overview } = req.body;
+  let sql = `INSERT INTO movies(id, original_title, release_date, poster_path, overview) VALUES($1, $2, $3, $4, $5)`;
+  let values = [id, original_title, release_date, poster_path, overview];
+  client
+    .query(sql, values)
+    .then((result) => {
+      console.log(result);
+      return res.status(201);
+    })
+    .catch((err) => {
+      handleError(err, req, res);
+    });
 
-  let sql = 'INSERT INTO movies( title,  comment) VALUES($1, $2) RETURNING *;' // sql query
-  let values = [ title,  comment];
-  client.query(sql, values).then((result) => {
-      console.log(result.rows);
-      return res.status(201).json(result.rows[0]);
-  }).catch()
+  res.send("Insert done");
 
 
 }
@@ -162,8 +175,7 @@ function handleGet(req, res) {
 
 
 
-
-// after connection to db, start the server
+startServer();
 
 
 
