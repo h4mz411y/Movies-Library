@@ -41,6 +41,7 @@ app.post("/addMovie", handleAdd);
 app.get("/getMovies", handleGet);
 app.put("/update/:movieId",handleUpdate);
 app.delete("/deleteMovie", handleDelete);
+app.get("/getMoviesById", handleGetById);
 
 
 app.get("/error", (req, res) => {
@@ -122,7 +123,9 @@ function hanleAuthentication (req,res){
     console.log(resulAuthentication.data);
     res.json(resulAuthentication.data);
   })
-  .catch()
+  .catch((err) => {
+    handleError(err, req, res);
+});
 
 }
 
@@ -134,7 +137,9 @@ res.json(resultLanguage.data);
 
 })
 
-.catch()
+.catch((err) => {
+  handleError(err, req, res);
+});
 
 
 }
@@ -175,8 +180,8 @@ function handleUpdate (req,res) {
   const { movieId } = req.params;
     const { id, original_title, release_date, poster_path, overview } = req.body;
 
-    let sql = `UPDATE movies SET id = $1, original_title = $2, release_date = $3, poster_path = $4, overview = $5;`
-    let values = [id, original_title, release_date, poster_path, overview];
+    let sql = `UPDATE movies SET id = $1, original_title = $2, release_date = $3, poster_path = $4, overview = $5  WHERE id = $6 RETURNING *;`
+    let values = [id, original_title, release_date, poster_path, overview,movieId];
 
     client.query(sql, values).then(result => {
       console.log(result);
@@ -184,7 +189,9 @@ function handleUpdate (req,res) {
       res.json(result.rows[0]);
   }
 
-  ).catch();
+  ).catch((err) => {
+    handleError(err, req, res);
+});;
 
 }
 
@@ -197,7 +204,21 @@ function handleDelete(req, res) {
       console.log(result);
       res.status(204).send("Deleted successfully!");
   }
-  ).catch()
+  ).catch((err) => {
+    handleError(err, req, res);
+});
+}
+
+function handleGetById(req, res) {
+
+  const { id } = req.query;
+  let sql = 'SELECT * from movies WHERE id=$1;'
+  let value = [id];
+  client.query(sql, value).then((result) => {
+    res.json(result.rows);
+  }).catch((err) => {
+    handleError(err, req, res);
+});
 }
 
 
